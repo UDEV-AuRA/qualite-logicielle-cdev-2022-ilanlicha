@@ -64,11 +64,12 @@ public class EmployeTest {
     @CsvSource({
             "'M12345', 0, 1, 1.0, 1700.0",
             "'J12345', 0, 1, 1.0, 1000.0",
+            "'J12345', 0, 0, 2.0, 600.0",
             "'J12345', 0, 2, 1.0, 2300.0"
     })
-    public void testGetPrimeAnnuelle(String matricule, Integer nbAnneesAnciennete, Integer performance, Double tauxtravail, Double primeCalculee){
+    public void testGetPrimeAnnuelle(String matricule, Integer nbAnneesAnciennete, Integer performance, Double tauxTravail, Double primeCalculee){
         //Given
-        Employe employe = new Employe("Michel", "Sardou", matricule, LocalDate.now().minusYears(nbAnneesAnciennete), 2500d, performance, tauxtravail);
+        Employe employe = new Employe("Michel", "Sardou", matricule, LocalDate.now().minusYears(nbAnneesAnciennete), 2500d, performance, tauxTravail);
 
         //When
         Double prime = employe.getPrimeAnnuelle();
