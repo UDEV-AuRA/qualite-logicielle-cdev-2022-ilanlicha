@@ -6,6 +6,8 @@ import com.ipiecoles.java.java350.model.Entreprise;
 import com.ipiecoles.java.java350.model.NiveauEtude;
 import com.ipiecoles.java.java350.model.Poste;
 import com.ipiecoles.java.java350.repository.EmployeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ public class EmployeService {
 
     @Autowired
     private EmployeRepository employeRepository;
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(EmployeService.class);
 
     /**
      * Méthode enregistrant un nouvel employé dans l'entreprise
@@ -31,26 +35,34 @@ public class EmployeService {
      * @throws EntityExistsException Si le matricule correspond à un employé existant
      */
     public void embaucheEmploye(String nom, String prenom, Poste poste, NiveauEtude niveauEtude, Double tempsPartiel) throws EmployeException, EntityExistsException {
-
+        LOGGER.info("Embauche d'un employé {} {} {} {} {}",nom, prenom, poste, niveauEtude, tempsPartiel);
         //Récupération du type d'employé à partir du poste
         String typeEmploye = poste.name().substring(0,1);
 
         //Récupération du dernier matricule...
         String lastMatricule = employeRepository.findLastMatricule();
+        LOGGER.debug("Dernier matricule récupéré : {}", lastMatricule);
         if(lastMatricule == null){
+            LOGGER.warn("Aucun employé trouvé, utilisation du matricule initial");
             lastMatricule = Entreprise.MATRICULE_INITIAL;
         }
         //... et incrémentation
         Integer numeroMatricule = Integer.parseInt(lastMatricule) + 1;
         if(numeroMatricule >= 100000){
+            LOGGER.error("Limite des 100000 matricules atteinte !");
             throw new EmployeException("Limite des 100000 matricules atteinte !");
+        } else if (numeroMatricule > 90000){
+            LOGGER.warn("Seuil des 90000 matricules atteint sur un total possible de 100000");
         }
         //On complète le numéro avec des 0 à gauche
         String matricule = "00000" + numeroMatricule;
         matricule = typeEmploye + matricule.substring(matricule.length() - 5);
 
+        LOGGER.info("Matricule calculé pour l'embauche de {} {} : {}", nom, prenom, matricule);
+
         //On vérifie l'existence d'un employé avec ce matricule
         if(employeRepository.findByMatricule(matricule) != null){
+            LOGGER.info("L'employé de matricule {} existe déjà en BDD", matricule);
             throw new EntityExistsException("L'employé de matricule " + matricule + " existe déjà en BDD");
         }
 
@@ -60,11 +72,14 @@ public class EmployeService {
             salaire = salaire * tempsPartiel;
         }
 
+        salaire = Math.round(salaire * 100) / 100d;
+        LOGGER.info("Salaire calculé : {}", salaire);
+
         //Création et sauvegarde en BDD de l'employé.
         Employe employe = new Employe(nom, prenom, matricule, LocalDate.now(), salaire, Entreprise.PERFORMANCE_BASE, tempsPartiel);
-
+        LOGGER.info("Employé avant sauvegarde : {}", employe);
         employeRepository.save(employe);
-
+        LOGGER.info("Employé après sauvegarde : {}", employe);
     }
 
 
@@ -89,17 +104,21 @@ public class EmployeService {
     public void calculPerformanceCommercial(String matricule, Long caTraite, Long objectifCa) throws EmployeException {
         //Vérification des paramètres d'entrée
         if(caTraite == null || caTraite < 0){
+            LOGGER.error("Le chiffre d'affaire traité ne peut être négatif ou null !");
             throw new EmployeException("Le chiffre d'affaire traité ne peut être négatif ou null !");
         }
         if(objectifCa == null || objectifCa < 0){
+            LOGGER.error("L'objectif de chiffre d'affaire ne peut être négatif ou null !");
             throw new EmployeException("L'objectif de chiffre d'affaire ne peut être négatif ou null !");
         }
         if(matricule == null || !matricule.startsWith("C")){
+            LOGGER.error("Le matricule ne peut être null et doit commencer par un C !");
             throw new EmployeException("Le matricule ne peut être null et doit commencer par un C !");
         }
         //Recherche de l'employé dans la base
         Employe employe = employeRepository.findByMatricule(matricule);
         if(employe == null){
+            LOGGER.error("Le matricule {} n'existe pas !", matricule);
             throw new EmployeException("Le matricule " + matricule + " n'existe pas !");
         }
 
@@ -131,5 +150,6 @@ public class EmployeService {
         //Affectation et sauvegarde
         employe.setPerformance(performance);
         employeRepository.save(employe);
+        LOGGER.trace("Employé {} affecté", matricule);
     }
 }
