@@ -143,11 +143,12 @@ public class Employe {
         if (this.salaire != null)
             if (this.salaire < 0)
                 throw new EmployeException("Le salaire est négatif !");
-            else
+            else {
                 if (pourcentage > 100)
                     throw new EmployeException("L'augmentation ne peut dépasser 100% !");
                 else
                     this.salaire += this.salaire * (pourcentage / 100d);
+            }
         else
             throw new EmployeException("L'employé n'a pas de salaire !");
     }
