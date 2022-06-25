@@ -121,29 +121,30 @@ public class EmployeServicetest {
     }
 
     @Test
-    public void testEmbaucheEmployeTempPartiel() throws EmployeException {
+    public void testEmbaucheEmployeTempsPariel() throws EmployeException {
         //Given
-        Mockito.when(employeRepository.findLastMatricule()).thenReturn("12346");
-        Mockito.when(employeRepository.findByMatricule(Mockito.anyString())).thenReturn(
-                new Employe("Cena", "John", "C12346", LocalDate.now(), 2500d, 1, 0.5)
-        );
+        Mockito.when(employeRepository.findLastMatricule()).thenReturn("12345");
+        Mockito.when(employeRepository.findByMatricule("C12346")).thenReturn(null);
+        Mockito.when(employeRepository.save(Mockito.any(Employe.class)))
+                .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
         //When
-        employeService.embaucheEmploye("Cena", "John", Poste.COMMERCIAL, NiveauEtude.MASTER, 0.5);
+        employeService.embaucheEmploye("Doe", "John",
+                Poste.COMMERCIAL, NiveauEtude.MASTER, 0.5);
 
         //Then
         ArgumentCaptor<Employe> employeArgumentCaptor = ArgumentCaptor.forClass(Employe.class);
         Mockito.verify(employeRepository).save(employeArgumentCaptor.capture());
-        //Employe employe = employeRepository.findByMatricule("C00001");
 
         Employe employe = employeArgumentCaptor.getValue();
         Assertions.assertThat(employe).isNotNull();
         Assertions.assertThat(employe.getPrenom()).isEqualTo("John");
-        Assertions.assertThat(employe.getNom()).isEqualTo("Cena");
+        Assertions.assertThat(employe.getNom()).isEqualTo("Doe");
         Assertions.assertThat(employe.getMatricule()).isEqualTo("C12346");
         Assertions.assertThat(employe.getPerformance()).isEqualTo(1);
+        Assertions.assertThat(employe.getTempsPartiel()).isEqualTo(0.5);
         Assertions.assertThat(employe.getDateEmbauche()).isEqualTo(LocalDate.now());
-        Assertions.assertThat(employe.getSalaire()).isEqualTo(1064.86);
+        Assertions.assertThat(employe.getSalaire()).isEqualTo(1064.85);
     }
 
     @BeforeEach
