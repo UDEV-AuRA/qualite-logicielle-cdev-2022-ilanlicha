@@ -1,9 +1,11 @@
 package com.ipiecoles.java.java350.model;
 
+import com.ipiecoles.java.java350.exception.EmployeException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 
 import java.time.LocalDate;
 
@@ -79,5 +81,89 @@ public class EmployeTest {
 
         //Then
         Assertions.assertThat(prime).isEqualTo(primeCalculee);
+    }
+
+    @Test
+    public void testAugmenterSalaireRond() throws EmployeException{
+        //Given
+        Employe employe = new Employe("Michel", "Sardou", "C12345", LocalDate.now(), 2500d, 1, 1.0);
+
+        //When
+        employe.augmenterSalaire(10d);
+
+        //Then
+        Assertions.assertThat(employe.getSalaire()).isEqualTo(2750);
+    }
+
+    @Test
+    public void testAugmenterSalaireDecimal() throws EmployeException{
+        //Given
+        Employe employe = new Employe("Michel", "Sardou", "C12345", LocalDate.now(), 2500d, 1, 1.0);
+
+        //When
+        employe.augmenterSalaire(10.5d);
+
+        //Then
+        Assertions.assertThat(employe.getSalaire()).isEqualTo(2762.5);
+    }
+
+    @Test
+    public void testAugmenterSalaireNull(){
+        //Given
+        Employe employe = new Employe("Michel", "Sardou", "C12345", LocalDate.now(), null, 1, 1.0);
+
+        //When
+        Throwable e = Assertions.catchThrowable(() -> {
+            employe.augmenterSalaire(10);
+        });
+
+        //Then
+        Assertions.assertThat(e).isInstanceOf(EmployeException.class).hasMessage("L'employé n'a pas de salaire !");
+    }
+
+    @Test
+    public void testAugmenterSalaireNegatif(){
+        //Given
+        Employe employe = new Employe("Michel", "Sardou", "C12345", LocalDate.now(), -10d, 1, 1.0);
+
+        //When
+        Throwable e = Assertions.catchThrowable(() -> {
+            employe.augmenterSalaire(10);
+        });
+
+        //Then
+        Assertions.assertThat(e).isInstanceOf(EmployeException.class).hasMessage("Le salaire est négatif !");
+    }
+
+    @Test
+    public void testAugmenterSalaireTropHaut(){
+        //Given
+        Employe employe = new Employe("Michel", "Sardou", "C12345", LocalDate.now(), 2500d, 1, 1.0);
+
+        //When
+        Throwable e = Assertions.catchThrowable(() -> {
+            employe.augmenterSalaire(101);
+        });
+
+        //Then
+        Assertions.assertThat(e).isInstanceOf(EmployeException.class).hasMessage("L'augmentation ne peut dépasser 100% !");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2019, 8",
+            "2021, 10",
+            "2022, 10",
+            "2032, 11",
+    })
+    public void testGetNbRtt(Integer year, Integer nbRttCalcule){
+        //Given
+        Employe employe = new Employe();
+
+        //When
+        Integer nbRtt = employe.getNbRtt(LocalDate.of(year,1,1));
+
+        //Then
+        Assertions.assertThat(nbRtt).isEqualTo(nbRttCalcule);
     }
 }

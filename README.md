@@ -97,18 +97,14 @@ Infos :
   - 2032 : l'année est bissextile, a débuté un jeudi et il y a 7 jours fériés ne tombant pas le week-end.
 
 - Tester sans dépendance à la BDD la méthode `calculPerformanceCommercial` d'`EmployeService`
+//avec mock
 
 ## Tests d'intégration
 
 - Tester de manière intégrée une cas nominal de la méthode précédente
 - Tester de manière intégrée la méthode d'`EmployeRepository` `avgPerformanceWhereMatriculeStartsWith`
-- BONUS Ecrire un test d'acceptation Gauge pour la fonctionnalité de calcul de performance d'un commercial.
 
 ## Autres
 
 - S'assurer que votre code passe et qu'il n'y a aucun *code smells* ou *anomalies* ou *bugs* bloquants, critiques ou majeurs. Si c'est le cas, corriger le code fourni.
 - S'assurer d'avoir 100% de couverture de code sur les méthodes testés dans l'évaluation. Vérifier la couverture de code avec mutation et à défaut d'atteindre 100%, essayer d'obtenir un bon niveau.
-
-## Revue de code
-
-En fin de TP, créer une Pull Request de votre branche `evaluation` vers `master` et mettez-vous d'accord avec un collègue pour qu'il fasse la revue de code. Faites les éventuelles modifications puis affectez-moi la PR.
